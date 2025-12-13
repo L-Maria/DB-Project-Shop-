@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <title>Panou Producător</title>
+    <style>
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .btn-logout { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
+        
+        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
+        h2 { margin-top: 0; color: #333; }
+        
+        /* Formular inputs */
+        input { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
+        
+        button.add-btn { background: #28a745; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; }
+        button.add-btn:hover { background: #218838; }
+
+        /* Tabel */
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
+        th { background-color: #007bff; color: white; }
+        
+        /* Butoane Actiuni */
+        .btn-action { padding: 6px 12px; border-radius: 4px; border: none; cursor: pointer; color: white; margin-right: 5px; }
+        .btn-edit { background-color: #ffc107; color: #333; }
+        .btn-delete { background-color: #dc3545; }
+
+        /* --- STILURI MODAL (Pop-up de Editare) --- */
+        .modal-overlay {
+            display: none; /* Ascuns implicit */
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.5); z-index: 1000;
+            justify-content: center; align-items: center;
+        }
+        .modal-content {
+            background: white; width: 400px; padding: 25px; border-radius: 10px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h1 id="welcomeText">Panou Control</h1>
+        <button onclick="logout()" class="btn-logout">Deconectare</button>
+    </div>
+
+    <div class="card">
+        <h2>Adaugă Produs Nou</h2>
+        <input type="text" id="prodNume" placeholder="Denumire Produs">
+        <label>Data Producere:</label>
+        <input type="date" id="prodData">
+        <label>Preț Vânzare (Lei):</label>
+        <input type="number" id="prodPret" placeholder="Pret">
+        <label>Stoc Inițial:</label>
+        <input type="number" id="prodStoc" placeholder="Cantitate">
+        
+        <button class="add-btn" onclick="adaugaProdus()">Salvează și Adaugă în Stoc</button>
+    </div>
+
+    <div class="card">
+        <h2>Ofertele Tale</h2>
+        <table id="tabelProduse">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Denumire</th>
+                    <th>Preț</th>
+                    <th>Stoc</th>
+                    <th>Acțiuni</th>
+                </tr>
+            </thead>
+            <tbody id="listaBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<div class="modal-overlay" id="editModal">
+    <div class="modal-content">
+        <h2>Editează Produs</h2>
+        
+        <input type="hidden" id="editFurnizareId">
+        <input type="hidden" id="editProdusId">
+
+        <label>Denumire Produs:</label>
+        <input type="text" id="editNume">
+        
+        <label>Preț Nou (Lei):</label>
+        <input type="number" id="editPret">
+
+        <div class="modal-buttons">
+            <button class="add-btn" style="background:#007bff" onclick="salveazaModificari()">Salvează</button>
+            <button class="add-btn" style="background:#6c757d" onclick="inchideModal()">Anulează</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API = "http://localhost:8080/api";
+    const producatorId = localStorage.getItem('producatorId');
+    const producatorNume = localStorage.getItem('producatorNume');
+
+    if (!producatorId) {
+        window.location.href = "index.html";
+    } else {
+        document.getElementById('welcomeText').innerText = "Salut, " + producatorNume;
+        incarcaProduseleMele();
+    }
+
+    // --- FUNCTII DE INCARCARE ---
+    async function incarcaProduseleMele() {
+        const res = await fetch(`${API}/furnizari`);
+        const toateFurnizarile = await res.json();
+        const produseleMele = toateFurnizarile.filter(f => f.producator.id == producatorId);
+
+        const tbody = document.getElementById('listaBody');
+        tbody.innerHTML = '';
+
+        produseleMele.forEach(item => {
+            const r = `
+                <tr>
+                    <td>${item.produs.id}</td>
+                    <td>${item.produs.denumire}</td>
+                    <td>${item.pretAchizitie} RON</td>
+                    <td>${item.stoc} buc</td>
+                    <td>
+                        <button class="btn-action btn-edit" 
+                            onclick="deschideModal(${item.id}, ${item.produs.id}, '${item.produs.denumire}', ${item.pretAchizitie})">
+                            Editează
+                        </button>
+                        
+                        <button class="btn-action btn-delete" onclick="stergeProdus(${item.produs.id})">Șterge</button>
+                    </td>
+                </tr>
+            `;
+            tbody.innerHTML += r;
+        });
+    }
+
+    // --- LOGICA PENTRU MODAL (EDITARE) ---
+    
+    function deschideModal(furnizareId, produsId, numeCurent, pretCurent) {
+        // 1. Populam campurile din modal cu datele existente
+        document.getElementById('editFurnizareId').value = furnizareId;
+        document.getElementById('editProdusId').value = produsId;
+        document.getElementById('editNume').value = numeCurent;
+        document.getElementById('editPret').value = pretCurent;
+
+        // 2. Afisam modalul
+        document.getElementById('editModal').style.display = 'flex';
+    }
+
+    function inchideModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    async function salveazaModificari() {
+        const furnizareId = document.getElementById('editFurnizareId').value;
+        const produsId = document.getElementById('editProdusId').value;
+        const numeNou = document.getElementById('editNume').value;
+        const pretNou = document.getElementById('editPret').value;
+
+        try {
+            // PAS 1: Actualizam NUMELE Produsului
+            await fetch(`${API}/produse/${produsId}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ denumire: numeNou })
+            });
+
+            // PAS 2: Actualizam PRETUL Furnizarii
+            await fetch(`${API}/furnizari/${furnizareId}`, {
+                method: 'PUT',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ pret: parseFloat(pretNou) })
+            });
+
+            // Refresh si inchidere
+            inchideModal();
+            incarcaProduseleMele();
+            alert("Produs actualizat!");
+
+        } catch(e) {
+            console.error(e);
+            alert("Eroare la modificare!");
+        }
+    }
+
+    // --- RESTUL FUNCTIILOR (ADAUGARE / STERGERE) ---
+
+    async function adaugaProdus() {
+        // ... (Codul tau existent pentru adaugare, cu logica de stoc) ...
+        // Copiaza aici logica de adaugare din raspunsul anterior
+        const nume = document.getElementById('prodNume').value;
+        const dataProd = document.getElementById('prodData').value;
+        const pret = document.getElementById('prodPret').value;
+        const stoc = document.getElementById('prodStoc').value;
+
+        if(!nume || !dataProd || !pret || !stoc) { alert("Completează tot!"); return; }
+
+        try {
+            // Check existent
+            const resProd = await fetch(`${API}/produse`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ denumire: nume, dataProducere: dataProd, dataExpirare: "2025-12-31" })
+            });
+            const p = await resProd.json();
+
+            await fetch(`${API}/furnizari/adauga`, {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ producatorId: producatorId, produsId: p.id, pret: parseFloat(pret), stoc: parseInt(stoc) })
+            });
+
+            document.getElementById('prodNume').value = '';
+            document.getElementById('prodPret').value = '';
+            document.getElementById('prodStoc').value = '';
+            incarcaProduseleMele();
+        } catch(e) { console.error(e); }
+    }
+
+    async function stergeProdus(id) {
+        if(confirm("Sigur stergi?")) {
+            await fetch(`${API}/produse/${id}`, { method: 'DELETE' });
+            incarcaProduseleMele();
+        }
+    }
+
+    function logout() { localStorage.clear(); window.location.href = "index.html"; }
+</script>
+
+</body>
+</html>

@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="ro">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazin Alimentar - Acces</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+        }
+
+        .container {
+            background: white;
+            padding: 2.5rem;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            width: 400px;
+            text-align: center;
+        }
+
+        h2 { color: #333; margin-bottom: 20px; }
+
+        /* Selectorul de Rol (Client vs Producator) */
+        .role-switch {
+            display: flex;
+            background: #f0f0f0;
+            border-radius: 25px;
+            margin-bottom: 25px;
+            overflow: hidden;
+            border: 1px solid #ddd;
+        }
+
+        .role-btn {
+            flex: 1;
+            padding: 12px;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            font-weight: bold;
+            transition: 0.3s;
+            color: #555;
+        }
+
+        .role-btn.active {
+            background: #007bff;
+            color: white;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            margin: 8px 0;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            box-sizing: border-box;
+            background: #fafafa;
+        }
+        
+        input:focus { border-color: #007bff; outline: none; background: white; }
+
+        button.submit-btn {
+            width: 100%;
+            padding: 12px;
+            background-color: #28a745;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-top: 20px;
+            transition: background 0.3s;
+            font-weight: bold;
+        }
+
+        button.submit-btn:hover { background-color: #218838; }
+
+        .hidden { display: none; }
+        
+        .footer-link { margin-top: 20px; font-size: 0.9em; color: #666; border-top: 1px solid #eee; padding-top: 15px; }
+        .footer-link a { color: #007bff; cursor: pointer; text-decoration: none; font-weight: bold; }
+        .footer-link a:hover { text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <h2 id="formTitle">Înregistrare Cont</h2>
+
+        <div class="role-switch">
+            <button class="role-btn active" id="btnClient" onclick="switchRole('client')">Sunt Client</button>
+            <button class="role-btn" id="btnProd" onclick="switchRole('producator')">Sunt Producător</button>
+        </div>
+
+        <form id="signupForm" onsubmit="handleSignup(event)">
+            <div id="signup-client-fields">
+                <input type="text" id="s_c_nume" placeholder="Nume de familie" required>
+                <input type="text" id="s_c_prenume" placeholder="Prenume" required>
+            </div>
+
+            <div id="signup-prod-fields" class="hidden">
+                <input type="text" id="s_p_denumire" placeholder="Denumire Firmă">
+                <input type="text" id="s_p_tara" placeholder="Țara de Origine">
+            </div>
+
+            <input type="text" id="s_adresa" placeholder="Adresa completă" required>
+            <input type="password" id="s_password" placeholder="Alege o Parola" required>
+
+            <button type="submit" class="submit-btn">Creează Cont</button>
+        </form>
+
+        <form id="loginForm" class="hidden" onsubmit="handleLogin(event)">
+            
+            <div id="login-client-fields">
+                <input type="text" id="l_c_nume" placeholder="Numele de familie">
+            </div>
+
+            <div id="login-prod-fields" class="hidden">
+                <input type="text" id="l_p_denumire" placeholder="Denumire Firmă">
+            </div>
+
+            <input type="password" id="l_password" placeholder="Parola ta">
+
+            <button type="submit" class="submit-btn" style="background-color: #007bff;">Intră în Cont</button>
+        </form>
+
+        <div class="footer-link" id="toggleText">
+            Ai deja cont? <a onclick="toggleForms('login')">Loghează-te aici</a>
+        </div>
+    </div>
+
+    <script>
+        let currentRole = 'client'; // Default
+        let currentMode = 'signup'; // 'signup' sau 'login'
+
+        // 1. Schimbarea intre Client si Producator
+        function switchRole(role) {
+            currentRole = role;
+            
+            // UI Butoane
+            document.getElementById('btnClient').className = role === 'client' ? 'role-btn active' : 'role-btn';
+            document.getElementById('btnProd').className = role === 'producator' ? 'role-btn active' : 'role-btn';
+
+            // Afisare campuri SIGNUP
+            if (role === 'client') {
+                document.getElementById('signup-client-fields').classList.remove('hidden');
+                document.getElementById('signup-prod-fields').classList.add('hidden');
+                
+                // Gestionare Required Signup
+                document.getElementById('s_c_nume').setAttribute('required', '');
+                document.getElementById('s_c_prenume').setAttribute('required', '');
+                document.getElementById('s_p_denumire').removeAttribute('required');
+            } else {
+                document.getElementById('signup-client-fields').classList.add('hidden');
+                document.getElementById('signup-prod-fields').classList.remove('hidden');
+                
+                // Gestionare Required Signup
+                document.getElementById('s_c_nume').removeAttribute('required');
+                document.getElementById('s_c_prenume').removeAttribute('required');
+                document.getElementById('s_p_denumire').setAttribute('required', '');
+            }
+
+            // Afisare campuri LOGIN
+            if (role === 'client') {
+                document.getElementById('login-client-fields').classList.remove('hidden');
+                document.getElementById('login-prod-fields').classList.add('hidden');
+            } else {
+                document.getElementById('login-client-fields').classList.add('hidden');
+                document.getElementById('login-prod-fields').classList.remove('hidden');
+            }
+        }
+
+        // 2. Comutare intre Sign Up si Login
+        function toggleForms(mode) {
+            currentMode = mode;
+            const signupForm = document.getElementById('signupForm');
+            const loginForm = document.getElementById('loginForm');
+            const title = document.getElementById('formTitle');
+            const footer = document.getElementById('toggleText');
+
+            if (mode === 'login') {
+                signupForm.classList.add('hidden');
+                loginForm.classList.remove('hidden');
+                title.innerText = "Autentificare";
+                footer.innerHTML = `Nu ai cont? <a onclick="toggleForms('signup')">Înregistrează-te aici</a>`;
+                
+                // Adaugam required doar pe form-ul vizibil
+                document.getElementById('l_password').setAttribute('required', '');
+                document.getElementById('s_password').removeAttribute('required');
+                document.getElementById('s_adresa').removeAttribute('required');
+
+            } else {
+                signupForm.classList.remove('hidden');
+                loginForm.classList.add('hidden');
+                title.innerText = "Înregistrare Cont";
+                footer.innerHTML = `Ai deja cont? <a onclick="toggleForms('login')">Loghează-te aici</a>`;
+                
+                document.getElementById('l_password').removeAttribute('required');
+                document.getElementById('s_password').setAttribute('required', '');
+                document.getElementById('s_adresa').setAttribute('required', '');
+            }
+        }
+
+        // 3. Logica de SIGN UP (Creare cont)
+        async function handleSignup(event) {
+            event.preventDefault();
+            
+            const adresa = document.getElementById('s_adresa').value;
+            const password = document.getElementById('s_password').value;
+            let url = '', payload = {};
+
+            if (currentRole === 'client') {
+                url = 'http://localhost:8080/api/clienti/signup';
+                payload = {
+                    nume: document.getElementById('s_c_nume').value,
+                    prenume: document.getElementById('s_c_prenume').value,
+                    adresa: adresa,
+                    password: password
+                };
+            } else {
+                url = 'http://localhost:8080/api/producatori/signup';
+                payload = {
+                    denumire: document.getElementById('s_p_denumire').value,
+                    taraOrigine: document.getElementById('s_p_tara').value,
+                    adresa: adresa,
+                    password: password
+                };
+            }
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    alert("Cont creat! Acum te logăm automat.");
+                    performLoginRedirect(data);
+                } else {
+                    alert("Eroare la înregistrare!");
+                }
+            } catch (e) { console.error(e); alert("Eroare server."); }
+        }
+
+        // 4. Logica de LOGIN (Intrare in cont)
+        async function handleLogin(event) {
+            event.preventDefault();
+
+            const password = document.getElementById('l_password').value;
+            let url = '', payload = {};
+
+            if (currentRole === 'client') {
+                url = 'http://localhost:8080/api/clienti/login';
+                // Backend-ul asteapta obiect Client, deci trimitem "nume" si "password"
+                payload = {
+                    nume: document.getElementById('l_c_nume').value,
+                    password: password
+                };
+            } else {
+                url = 'http://localhost:8080/api/producatori/login';
+                // Backend-ul asteapta obiect Producator, deci trimitem "denumire" si "password"
+                payload = {
+                    denumire: document.getElementById('l_p_denumire').value,
+                    password: password
+                };
+            }
+
+            try {
+                const res = await fetch(url, {
+                    method: 'POST', headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (res.ok) {
+                    const data = await res.json();
+                    performLoginRedirect(data);
+                } else {
+                    alert("Nume sau parolă greșită!");
+                }
+            } catch (e) { console.error(e); alert("Eroare server. Verifica conexiunea."); }
+        }
+
+        // 5. Functie comuna pentru redirectionare
+        function performLoginRedirect(user) {
+            if (currentRole === 'client') {
+                localStorage.setItem('clientId', user.id);
+                localStorage.setItem('clientNume', user.prenume + " " + user.nume);
+                window.location.href = "dashboard_client.html";
+            } else {
+                localStorage.setItem('producatorId', user.id);
+                localStorage.setItem('producatorNume', user.denumire);
+                window.location.href = "dashboard_producator.html";
+            }
+        }
+    </script>
+</body>
+</html>
