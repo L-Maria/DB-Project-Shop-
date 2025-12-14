@@ -10,15 +10,15 @@
         .price-tag { font-size: 2em; color: #28a745; font-weight: bold; margin: 20px 0; }
         .info-row { margin: 10px 0; color: #555; border-bottom: 1px solid #eee; padding-bottom: 10px; }
         .action-area { margin-top: 30px; display: flex; gap: 10px; }
-        input[type="number"] { padding: 10px; width: 60px; border: 1px solid #ddd; border-radius: 5px; }
+        input[type="number"] { padding: 10px; width: 60px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; text-align: center;}
         
+        /* Butonul de Adaugare in Cos */
         button.cart-btn { flex: 1; background: #fd7e14; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; }
         button.cart-btn:hover { background: #e36d0a; }
+        /* Stil pentru buton dezactivat */
+        button.cart-btn:disabled { background-color: #ccc; cursor: not-allowed; }
         
         button.back-btn { background: transparent; border: 1px solid #aaa; color: #555; padding: 12px; border-radius: 5px; cursor: pointer; }
-        
-        /* Stil pentru buton dezactivat (cand nu e stoc) */
-        button.cart-btn:disabled { background-color: #ccc; cursor: not-allowed; }
     </style>
 </head>
 <body>
@@ -28,30 +28,44 @@
         
         <div id="content" style="display:none;">
             <h1 id="d_nume">Nume Produs</h1>
-            <div class="info-row"><strong>Producător:</strong> <span id="d_prod">Firma X</span></div>
-            <div class="info-row"><strong>Țara:</strong> <span id="d_tara">RO</span></div>
+            <div class="info-row"><strong>Producător:</strong> <span id="d_prod">...</span></div>
+            <div class="info-row"><strong>Țara:</strong> <span id="d_tara">...</span></div>
             <div class="info-row"><strong>Expiră la:</strong> <span id="d_exp">...</span></div>
             
-            <div class="info-row"><strong>Stoc Disponibil:</strong> <span id="d_stoc" style="color:blue; font-weight:bold">0</span> buc.</div>
+            <div class="info-row">
+                <strong>Stoc Disponibil:</strong> 
+                <span id="d_stoc" style="color:blue; font-weight:bold">...</span> buc.
+            </div>
             
             <div class="price-tag" id="d_pret">0.00 RON</div>
 
             <div class="action-area">
-                <button class="back-btn" onclick="goBack()">Înapoi</button>
+                <button class="back-btn" onclick="window.history.back()">Înapoi</button>
                 <input type="number" id="cantitate" value="1" min="1">
-                <button class="cart-btn" onclick="adaugaInCos()">🛒 Adaugă în Coș</button>
+                <button id="btnAdauga" class="cart-btn" onclick="adaugaInCos()">🛒 Adaugă în Coș</button>
             </div>
         </div>
     </div>
 
     <script>
+        // --- 1. VARIABILE GLOBALE ---
         const API = "http://localhost:8080/api";
         const urlParams = new URLSearchParams(window.location.search);
         const furnizareId = urlParams.get('id');
-        let currentOffer = null;
+        const clientId = localStorage.getItem('clientId');
 
+        let currentOffer = null; // Aici stocam datele de la server
+
+        // Validare: Daca nu esti logat, te trimite la login
+        if(!clientId) {
+            alert("Trebuie să fii logat!");
+            window.location.href = "index.html";
+        }
+
+        // Pornire
         loadDetails();
 
+        // --- 2. INCARCARE DATE ---
         async function loadDetails() {
             try {
                 const res = await fetch(`${API}/furnizari/${furnizareId}`);
@@ -59,85 +73,78 @@
                 
                 currentOffer = await res.json();
                 
-                // Popularea datelor de baza
+                // Populare HTML
                 document.getElementById('d_nume').innerText = currentOffer.produs.denumire;
                 document.getElementById('d_prod').innerText = currentOffer.producator.denumire;
                 document.getElementById('d_tara').innerText = currentOffer.producator.taraOrigine;
                 document.getElementById('d_exp').innerText = currentOffer.produs.dataExpirare;
                 document.getElementById('d_pret').innerText = currentOffer.pretAchizitie + " RON";
                 
-                // --- AICI AM PUS LOGICA PENTRU AFISAREA STOCULUI ---
+                // LOGICA STOC
                 const stocElement = document.getElementById('d_stoc');
+                const btn = document.getElementById('btnAdauga');
+                const inputCantitate = document.getElementById('cantitate');
                 
-                // Verificam daca stocul exista (daca ai facut update la backend)
-                // Daca backend-ul nu trimite stoc, punem 0 preventiv
+                // Stocul vine de la server. Daca e undefined, punem 0.
                 const stocCurent = currentOffer.stoc !== undefined ? currentOffer.stoc : 0;
                 stocElement.innerText = stocCurent;
 
                 if (stocCurent <= 0) {
-                    // Cazul cand NU e stoc: facem textul rosu si blocam butonul
                     stocElement.innerText = "STOC EPUIZAT";
                     stocElement.style.color = "red";
-                    
-                    const btn = document.querySelector('.cart-btn');
                     btn.disabled = true;
                     btn.innerText = "Indisponibil";
-                    
-                    document.getElementById('cantitate').disabled = true;
+                    inputCantitate.disabled = true;
+                    inputCantitate.value = 0;
                 } else {
-                    // Cazul cand E stoc: setam maximul inputului
-                    document.getElementById('cantitate').setAttribute("max", stocCurent);
+                    inputCantitate.setAttribute("max", stocCurent);
                 }
-                // ----------------------------------------------------
 
+                // Afisare
                 document.getElementById('loading').style.display = 'none';
                 document.getElementById('content').style.display = 'block';
+
             } catch (e) { 
-                document.getElementById('loading').innerText = e.message; 
+                document.getElementById('loading').innerText = "Eroare: " + e.message; 
             }
         }
 
+        // --- 3. ADAUGARE IN COS ---
         function adaugaInCos() {
             const cantitateCeruta = parseInt(document.getElementById('cantitate').value);
-            // Stocul vine din backend, daca nu e definit consideram 0
             const stocDisponibil = currentOffer.stoc !== undefined ? currentOffer.stoc : 0;
 
-            // 1. Validare cantitate simpla (input)
-            if (cantitateCeruta <= 0 || isNaN(cantitateCeruta)) {
-                alert("Te rog selectează o cantitate validă (minim 1).");
+            // Validare simpla
+            if (isNaN(cantitateCeruta) || cantitateCeruta <= 0) {
+                alert("Cantitatea trebuie să fie minim 1.");
                 return;
             }
 
-            // 2. Luam cosul existent din LocalStorage
-            let cos = JSON.parse(localStorage.getItem('shoppingCart')) || [];
+            // Construim cheia specifica clientului
+            const cartKey = 'shoppingCart_' + clientId;
+            
+            // Citim cosul existent
+            let cos = JSON.parse(localStorage.getItem(cartKey)) || [];
 
-            // 3. VERIFICAM DACA PRODUSUL EXISTA DEJA IN COS
-            // Folosim findIndex ca sa stim pozitia lui in lista (daca exista)
-            // Cautam dupa furnizareId pentru ca ala e unicul identificator al ofertei
+            // Verificam daca produsul e deja in cos
             const indexExistent = cos.findIndex(item => item.furnizareId === currentOffer.id);
 
             if (indexExistent !== -1) {
-                // --- CAZUL A: PRODUSUL EXISTA -> ACTUALIZAM ---
-                
+                // --- UPDATE ---
                 const cantitateInCos = cos[indexExistent].cantitate;
-                const cantitateTotalaPropusa = cantitateInCos + cantitateCeruta;
-
-                // Validam stocul TOTAL (ce e deja in cos + ce vrea sa adauge acum)
-                if (cantitateTotalaPropusa > stocDisponibil) {
-                    alert(`Stoc insuficient! Ai deja ${cantitateInCos} buc în coș. \nMai poți adăuga maxim ${stocDisponibil - cantitateInCos} buc.`);
-                    return; // Oprim totul
+                
+                if (cantitateInCos + cantitateCeruta > stocDisponibil) {
+                    alert(`Nu poți adăuga încă ${cantitateCeruta} buc! \nAi deja ${cantitateInCos} în coș, iar stocul total este ${stocDisponibil}.`);
+                    return;
                 }
-
-                // Daca e ok, actualizam doar numarul
-                cos[indexExistent].cantitate = cantitateTotalaPropusa;
-                alert(`Cantitatea a fost actualizată! Ai acum ${cantitateTotalaPropusa} x ${currentOffer.produs.denumire} în coș.`);
+                
+                cos[indexExistent].cantitate += cantitateCeruta;
+                alert("Cantitatea din coș a fost actualizată!");
 
             } else {
-                // --- CAZUL B: PRODUS NOU -> ADAUGAM ---
-
-                // Validam stocul simplu
+                // --- INSERT ---
                 if (cantitateCeruta > stocDisponibil) {
-                    alert(`Nu poți adăuga ${cantitateCeruta} produse! Stoc maxim: ${stocDisponibil}.`);
+                    alert(`Nu poți adăuga mai mult decât stocul disponibil (${stocDisponibil}).`);
                     document.getElementById('cantitate').value = stocDisponibil;
                     return;
                 }
@@ -149,22 +156,19 @@
                     producator: currentOffer.producator.denumire,
                     pret: currentOffer.pretAchizitie,
                     cantitate: cantitateCeruta,
-                    // Poti salva si stocul max in cos daca vrei sa validezi si acolo
-                    stocMax: stocDisponibil 
+                    stocMax: stocDisponibil // Salvam stocul maxim pentru validari ulterioare in cos
                 };
 
                 cos.push(itemCos);
-                alert(`Ai adăugat ${cantitateCeruta} x ${itemCos.nume} în coș!`);
+                alert("Produs adăugat în coș!");
             }
 
-            // 4. Salvam inapoi in LocalStorage
-            localStorage.setItem('shoppingCart', JSON.stringify(cos));
+            // Salvam inapoi
+            localStorage.setItem(cartKey, JSON.stringify(cos));
 
-            // 5. Redirect
+            // Redirect
             window.location.href = "dashboard_client.html";
         }
-
-        function goBack() { window.history.back(); }
     </script>
 </body>
 </html>

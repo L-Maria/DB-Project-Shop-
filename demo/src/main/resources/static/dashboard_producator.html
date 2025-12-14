@@ -195,35 +195,70 @@
     // --- RESTUL FUNCTIILOR (ADAUGARE / STERGERE) ---
 
     async function adaugaProdus() {
-        // ... (Codul tau existent pentru adaugare, cu logica de stoc) ...
-        // Copiaza aici logica de adaugare din raspunsul anterior
         const nume = document.getElementById('prodNume').value;
         const dataProd = document.getElementById('prodData').value;
         const pret = document.getElementById('prodPret').value;
         const stoc = document.getElementById('prodStoc').value;
 
-        if(!nume || !dataProd || !pret || !stoc) { alert("Completează tot!"); return; }
+        // 1. Validare
+        if(!nume || !dataProd || !pret || !stoc) { 
+            alert("Te rog completează toate câmpurile!"); 
+            return; 
+        }
 
         try {
-            // Check existent
+            console.log("1. Se creeaza produsul...");
+            
+            // PAS A: Trimitem Produsul (Backend-ul va verifica daca exista deja)
             const resProd = await fetch(`${API}/produse`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ denumire: nume, dataProducere: dataProd, dataExpirare: "2025-12-31" })
+                body: JSON.stringify({ 
+                    denumire: nume, 
+                    dataProducere: dataProd, 
+                    dataExpirare: "2025-12-31" 
+                })
             });
-            const p = await resProd.json();
 
-            await fetch(`${API}/furnizari/adauga`, {
+            if (!resProd.ok) throw new Error("Eroare la crearea produsului generic.");
+            const p = await resProd.json();
+            console.log("Produs ID obtinut:", p.id);
+
+            // PAS B: Trimitem Furnizarea (Legatura + Stoc)
+            console.log("2. Se adauga stocul...");
+            const resFurnizare = await fetch(`${API}/furnizari/adauga`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ producatorId: producatorId, produsId: p.id, pret: parseFloat(pret), stoc: parseInt(stoc) })
+                body: JSON.stringify({ 
+                    producatorId: producatorId, 
+                    produsId: p.id, 
+                    pret: parseFloat(pret), 
+                    stoc: parseInt(stoc) 
+                })
             });
 
+            if (!resFurnizare.ok) {
+                // Dacă producătorul nu există (ai fost sters), aici va da eroare
+                const msg = await resFurnizare.text();
+                throw new Error("Eroare Backend: " + msg);
+            }
+
+            // Daca ajungem aici, totul e OK
+            alert("Produs salvat cu succes!");
+
+            // 3. Golim formularul
             document.getElementById('prodNume').value = '';
             document.getElementById('prodPret').value = '';
             document.getElementById('prodStoc').value = '';
-            incarcaProduseleMele();
-        } catch(e) { console.error(e); }
+
+            // 4. REINCARCAM TABELUL (Critic!)
+            console.log("3. Se reincarca tabelul...");
+            await incarcaProduseleMele();
+
+        } catch(e) {
+            console.error(e);
+            alert("A apărut o eroare: " + e.message + "\n(Verifică dacă ești logat cu un cont valid)");
+        }
     }
 
     async function stergeProdus(id) {

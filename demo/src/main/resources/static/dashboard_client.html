@@ -6,23 +6,22 @@
     <style>
         body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 20px; }
         
-        /* HEADER CU BUTON DE COS */
+        /* HEADER */
         .header { 
             display: flex; justify-content: space-between; align-items: center; 
             background: white; padding: 15px 30px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
         }
-        
         .header-right { display: flex; gap: 15px; align-items: center; }
-
         .btn-logout { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
         
-        /* Stil Buton Cos */
+        /* BUTON COS */
         .cart-trigger { 
             background-color: #007bff; color: white; padding: 10px 20px; 
             border-radius: 20px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; 
         }
         .cart-trigger:hover { background-color: #0056b3; }
 
+        /* GRID PRODUSE */
         .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
         .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; transition: 0.2s; }
         .card:hover { transform: translateY(-5px); }
@@ -30,9 +29,9 @@
         .card-body { padding: 15px; }
         .price { color: #28a745; font-weight: bold; font-size: 1.2em; }
         
-        /* --- STILURI PENTRU MODAL (FEREASTRA COS) --- */
+        /* MODAL (COS) */
         .modal-overlay {
-            display: none; /* Ascuns implicit */
+            display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.5); z-index: 1000;
             justify-content: center; align-items: center;
@@ -40,29 +39,23 @@
         .modal-content {
             background: white; width: 500px; max-height: 80vh;
             border-radius: 10px; padding: 20px;
-            display: flex; flex-direction: column;
-            position: relative;
+            display: flex; flex-direction: column; position: relative;
         }
-        .modal-header { font-size: 1.5em; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px; }
+        .modal-header { font-size: 1.5em; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
         .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.5em; color: #aaa; }
         
         .cart-items { overflow-y: auto; flex: 1; margin-bottom: 20px; }
         .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
         
         .total-section { font-size: 1.2em; font-weight: bold; text-align: right; margin-bottom: 15px; }
-        
         .btn-checkout { background: #28a745; color: white; width: 100%; padding: 15px; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; }
-        .btn-checkout:hover { background: #218838; }
         .btn-clear { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 0.8em; }
-
     </style>
 </head>
 <body>
 
     <div class="header">
-        <div>
-            <h1 style="margin:0" id="welcomeMsg">Magazin</h1>
-        </div>
+        <h1 style="margin:0" id="welcomeMsg">Magazin</h1>
         <div class="header-right">
             <div class="cart-trigger" onclick="openCart()">
                 🛒 Coșul meu <span id="cartCount">(0)</span>
@@ -76,10 +69,12 @@
     <div class="modal-overlay" id="cartModal">
         <div class="modal-content">
             <span class="close-modal" onclick="closeCart()">&times;</span>
-            <div class="modal-header">Coșul de Cumpărături <button class="btn-clear" onclick="golesteCos()">Golește</button></div>
+            <div class="modal-header">
+                Coșul de Cumpărături 
+                <button class="btn-clear" onclick="golesteCos()">Golește</button>
+            </div>
             
-            <div class="cart-items" id="cartList">
-                </div>
+            <div class="cart-items" id="cartList"></div>
 
             <div class="total-section" id="cartTotal">Total: 0.00 RON</div>
             <button class="btn-checkout" onclick="finalizeazaComanda()">✅ Cumpără Tot</button>
@@ -87,44 +82,42 @@
     </div>
 
     <script>
+        // --- 1. DEFINIREA VARIABILELOR GLOBALE ---
         const API = "http://localhost:8080/api";
         const clientId = localStorage.getItem('clientId');
         const clientNume = localStorage.getItem('clientNume');
 
+        // Validare Login
         if(!clientId) window.location.href = "index.html";
+        
+        // Afisare nume
         document.getElementById('welcomeMsg').innerText = "Salut, " + clientNume;
 
-        loadOffers();
-        updateCartCount(); // Actualizam numarul de pe buton la pornire
+        // DEFINIM CHEIA COSULUI AICI, CA SA FIE VIZIBILA PESTE TOT
+        const cartKey = 'shoppingCart_' + clientId; 
 
-       async function loadOffers() {
+        // Initializare
+        loadOffers();
+        updateCartCount(); 
+
+
+        // --- 2. LOGICA PENTRU PRODUSE ---
+        async function loadOffers() {
             try {
                 const res = await fetch(`${API}/furnizari`);
                 const offers = await res.json();
-                
                 const grid = document.getElementById('productGrid');
                 grid.innerHTML = '';
 
-                // Verificam daca lista e goala
                 if(offers.length === 0) {
                     grid.innerHTML = '<p>Nu există produse momentan.</p>';
                     return;
                 }
 
-                let produseAfisate = 0;
-
                 offers.forEach(offer => {
-                    // 1. FILTRARE STOC (Codul adaugat anterior)
                     const stocCurent = offer.stoc !== undefined ? offer.stoc : 0;
-                    
-                    if (stocCurent <= 0) {
-                        return; // Sarim peste produsele fara stoc
-                    }
+                    if (stocCurent <= 0) return; // Filtram produsele fara stoc
 
-                    produseAfisate++;
-
-                    // 2. GENERARE CARD (Aici am reparat onclick-ul)
-                    // Am pus direct: window.location.href='...'
                     const card = `
                         <div class="card" onclick="window.location.href='detalii_produs.html?id=${offer.id}'">
                             <div class="card-img">📦</div>
@@ -134,58 +127,80 @@
                                 <div class="price">${offer.pretAchizitie} RON</div>
                                 <div style="font-size:0.8em; color:gray">Stoc: ${stocCurent}</div>
                             </div>
-                        </div>
-                    `;
+                        </div>`;
                     grid.innerHTML += card;
                 });
-
-                // Daca toate produsele aveau stoc 0
-                if (produseAfisate === 0) {
-                    grid.innerHTML = '<p>Toate produsele sunt momentan epuizate.</p>';
-                }
-
-            } catch (e) {
-                console.error(e);
-                alert("Eroare la încărcarea produselor.");
-            }
+            } catch (e) { console.error(e); }
         }
 
-        // --- FUNCTII PENTRU COS ---
+        // --- 3. LOGICA PENTRU COS ---
 
         function updateCartCount() {
-            const cos = JSON.parse(localStorage.getItem('shoppingCart')) || [];
+            const cos = JSON.parse(localStorage.getItem(cartKey)) || [];
             document.getElementById('cartCount').innerText = `(${cos.length})`;
         }
 
         function openCart() {
-            const cos = JSON.parse(localStorage.getItem('shoppingCart')) || [];
+            const cos = JSON.parse(localStorage.getItem(cartKey)) || [];
             const listContainer = document.getElementById('cartList');
             listContainer.innerHTML = '';
             let total = 0;
 
             if(cos.length === 0) {
                 listContainer.innerHTML = '<p style="text-align:center; color:#888;">Coșul este gol.</p>';
+                document.getElementById('cartTotal').innerText = `Total: 0.00 RON`;
             } else {
                 cos.forEach((item, index) => {
                     const subtotal = item.pret * item.cantitate;
                     total += subtotal;
                     listContainer.innerHTML += `
                         <div class="cart-item">
-                            <div>
+                            <div style="flex:1">
                                 <b>${item.nume}</b><br>
-                                <small>Furnizor: ${item.producator}</small>
+                                <small style="color:#666">Furnizor: ${item.producator}</small><br>
+                                <small style="color:${item.cantitate >= item.stocMax ? 'red' : 'green'}">
+                                    Stoc max: ${item.stocMax}
+                                </small>
                             </div>
-                            <div style="text-align:right">
-                                ${item.cantitate} buc x ${item.pret} Lei<br>
-                                <b>= ${subtotal} Lei</b>
+                            <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
+                                <div style="display:flex; align-items:center; gap:5px;">
+                                    <span style="font-size:0.9em">${item.pret} Lei x </span>
+                                    <input type="number" 
+                                           value="${item.cantitate}" 
+                                           min="1" 
+                                           max="${item.stocMax}"
+                                           style="width:50px; padding:5px; border:1px solid #ccc; border-radius:4px;"
+                                           onchange="schimbaCantitate(${index}, this.value)">
+                                </div>
+                                <b>= ${subtotal.toFixed(2)} Lei</b>
                             </div>
                         </div>
                     `;
                 });
+                document.getElementById('cartTotal').innerText = `Total: ${total.toFixed(2)} RON`;
+            }
+            document.getElementById('cartModal').style.display = 'flex';
+        }
+
+        function schimbaCantitate(index, valoareNoua) {
+            let cos = JSON.parse(localStorage.getItem(cartKey)) || [];
+            let item = cos[index];
+            let cantitateNoua = parseInt(valoareNoua);
+
+            if (isNaN(cantitateNoua) || cantitateNoua < 1) cantitateNoua = 1;
+            
+            if (cantitateNoua > item.stocMax) {
+                alert(`Nu poți comanda mai mult de ${item.stocMax} bucăți!`);
+                cantitateNoua = item.stocMax;
             }
 
-            document.getElementById('cartTotal').innerText = `Total: ${total.toFixed(2)} RON`;
-            document.getElementById('cartModal').style.display = 'flex'; // Aratam fereastra
+            item.cantitate = cantitateNoua;
+            cos[index] = item;
+            localStorage.setItem(cartKey, JSON.stringify(cos));
+            
+            // Re-desenam cosul pentru a actualiza preturile
+            openCart();
+            updateCartCount();
         }
 
         function closeCart() {
@@ -193,13 +208,13 @@
         }
 
         function golesteCos() {
-            localStorage.removeItem('shoppingCart');
+            localStorage.removeItem(cartKey);
             updateCartCount();
-            openCart(); // Refresh vizual
+            openCart();
         }
 
         async function finalizeazaComanda() {
-            const cos = JSON.parse(localStorage.getItem('shoppingCart')) || [];
+            const cos = JSON.parse(localStorage.getItem(cartKey)) || [];
             if(cos.length === 0) { alert("Coșul e gol!"); return; }
 
             if(!confirm(`Confirmi cumpărarea a ${cos.length} produse?`)) return;
@@ -214,40 +229,27 @@
                         body: JSON.stringify({
                             clientId: clientId,
                             produsId: item.produsId,
-                            
-                            // --- LINIE NOUA: Trimitem ID-ul ofertei ---
-                            furnizareId: item.furnizareId, 
-                            // ------------------------------------------
-                            
+                            furnizareId: item.furnizareId,
                             cantitate: item.cantitate
                         })
                     });
 
-                    if(!res.ok) {
-                        // Afisam eroarea daca stocul e insuficient
-                        const msg = await res.text();
-                        console.error("Eroare la produsul " + item.nume + ": " + msg);
-                        erori++;
-                    }
-                } catch(e) {
-                    erori++;
-                }
+                    if(!res.ok) erori++;
+                } catch(e) { erori++; }
             }
 
             if(erori === 0) {
                 alert("Comanda plasată cu succes!");
                 golesteCos();
                 closeCart();
-                // Reincarcam ofertele ca sa vedem stocurile noi (daca afisam stocul in lista)
                 loadOffers(); 
             } else {
-                alert("Unele produse nu au putut fi cumpărate (posibil stoc epuizat între timp). Verifică consola.");
-                // Nu golim cosul complet in caz de eroare, ca userul sa mai incerce
+                alert("Unele produse nu au putut fi cumpărate.");
             }
         }
 
         function logout() {
-            localStorage.clear();
+            localStorage.clear(); // Asta e ok, sterge login-ul
             window.location.href = "index.html";
         }
     </script>
