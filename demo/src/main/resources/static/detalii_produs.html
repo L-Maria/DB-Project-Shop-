@@ -2,70 +2,224 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Detalii Produs</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .detail-card { background: white; padding: 30px; border-radius: 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-width: 500px; width: 100%; }
-        h1 { margin-top: 0; color: #333; }
-        .price-tag { font-size: 2em; color: #28a745; font-weight: bold; margin: 20px 0; }
-        .info-row { margin: 10px 0; color: #555; border-bottom: 1px solid #eee; padding-bottom: 10px; }
-        .action-area { margin-top: 30px; display: flex; gap: 10px; }
-        input[type="number"] { padding: 10px; width: 60px; border: 1px solid #ddd; border-radius: 5px; font-size: 16px; text-align: center;}
+        :root {
+            /* Culori Moderne */
+            --primary-gradient: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            --bg-body: #f4f7fe;
+            --bg-card: #ffffff;
+            --text-dark: #2b2d42;
+            --text-muted: #8d99ae;
+            --danger-color: #ef233c;
+            --border-radius: 24px;
+            --shadow-lg: 0 20px 50px rgba(67, 97, 238, 0.12);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-dark);
+            margin: 0; padding: 20px;
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            background-image: radial-gradient(at 0% 0%, rgba(67, 97, 238, 0.05) 0px, transparent 50%), 
+                              radial-gradient(at 100% 100%, rgba(42, 157, 143, 0.05) 0px, transparent 50%);
+        }
+
+        /* Container Principal */
+        .detail-card { 
+            background: var(--bg-card); 
+            border-radius: var(--border-radius); 
+            box-shadow: var(--shadow-lg); 
+            width: 100%; max-width: 950px;
+            display: flex; flex-direction: column;
+            overflow: hidden;
+            border: 1px solid rgba(255,255,255,0.8);
+            position: relative;
+        }
+
+        @media(min-width: 800px) {
+            .detail-card { flex-direction: row; min-height: 500px; }
+        }
+
+        /* Partea Stanga (Vizual) */
+        .product-visual {
+            background: linear-gradient(to bottom right, #f8f9fa, #eef2ff);
+            flex: 1;
+            display: flex; align-items: center; justify-content: center;
+            min-height: 300px;
+            position: relative;
+            border-right: 1px solid #f0f0f0;
+        }
         
-        /* Butonul de Adaugare in Cos */
-        button.cart-btn { flex: 1; background: #fd7e14; color: white; border: none; padding: 12px; border-radius: 5px; cursor: pointer; font-size: 16px; transition: 0.3s; }
-        button.cart-btn:hover { background: #e36d0a; }
-        /* Stil pentru buton dezactivat */
-        button.cart-btn:disabled { background-color: #ccc; cursor: not-allowed; }
+        .product-icon {
+            font-size: 10rem;
+            filter: drop-shadow(0 15px 30px rgba(0,0,0,0.1));
+            transition: transform 0.4s ease;
+            cursor: default;
+        }
+        .detail-card:hover .product-icon { transform: scale(1.1) rotate(-5deg); }
+
+        /* Partea Dreapta (Info) */
+        .product-info {
+            flex: 1.3;
+            padding: 50px;
+            display: flex; flex-direction: column; justify-content: center;
+        }
+
+        h1 { 
+            margin: 0 0 15px 0; 
+            color: var(--text-dark); 
+            font-size: 2.2rem; font-weight: 800; letter-spacing: -1px;
+            line-height: 1.1;
+        }
+
+        /* Grid Specificatii */
+        .specs-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 15px;
+            margin: 30px 0;
+        }
+
+        .spec-item {
+            background: #f8faff;
+            padding: 12px 18px;
+            border-radius: 12px;
+            border: 1px solid #eef2ff;
+        }
+
+        .spec-label { font-size: 0.7rem; color: #8d99ae; text-transform: uppercase; letter-spacing: 1px; font-weight: 700; margin-bottom: 5px; display: block;}
+        .spec-value { font-size: 1rem; color: var(--text-dark); font-weight: 600; }
+
+        /* Pret si Stoc */
+        .price-section {
+            display: flex; justify-content: space-between; align-items: flex-end;
+            margin-bottom: 40px; border-bottom: 2px solid #f8f9fa; padding-bottom: 20px;
+        }
+
+        .price-tag { 
+            font-size: 2.5rem; color: var(--text-dark); font-weight: 800; 
+            display: flex; align-items: baseline; gap: 5px;
+        }
+        .price-tag small { font-size: 0.5em; color: var(--text-muted); font-weight: 500; }
+
+        .stock-badge {
+            background: #e0f2fe; color: #0284c7;
+            padding: 8px 16px; border-radius: 30px;
+            font-weight: 700; font-size: 0.9rem;
+        }
         
-        button.back-btn { background: transparent; border: 1px solid #aaa; color: #555; padding: 12px; border-radius: 5px; cursor: pointer; }
+        .stock-badge.out { background: #fee2e2; color: #ef4444; }
+
+        /* Actiuni */
+        .action-area { display: flex; gap: 15px; align-items: center; }
+
+        input[type="number"] { 
+            padding: 15px; width: 70px; 
+            border: 2px solid #e1e8f5; border-radius: 14px; 
+            font-size: 1.2rem; text-align: center; font-weight: 700; color: var(--text-dark);
+            outline: none; transition: 0.2s;
+        }
+        input[type="number"]:focus { border-color: #4361ee; box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1); }
+
+        button { font-family: 'Inter', sans-serif; cursor: pointer; transition: all 0.2s; }
+
+        button.cart-btn { 
+            flex: 1; 
+            background: var(--primary-gradient); 
+            color: white; border: none; 
+            padding: 18px; border-radius: 14px; 
+            font-size: 1.1rem; font-weight: 700; 
+            box-shadow: 0 10px 25px -5px rgba(67, 97, 238, 0.4);
+            display: flex; align-items: center; justify-content: center; gap: 10px;
+        }
+        button.cart-btn:hover { transform: translateY(-3px); box-shadow: 0 15px 30px -5px rgba(67, 97, 238, 0.5); }
+        button.cart-btn:active { transform: scale(0.98); }
+        
+        button.cart-btn:disabled { 
+            background: #e2e8f0; color: #94a3b8; 
+            box-shadow: none; cursor: not-allowed; transform: none; 
+        }
+
+        button.back-btn { 
+            background: white; 
+            border: 2px solid #e2e8f0; color: #64748b; 
+            padding: 16px 24px; border-radius: 14px; 
+            font-weight: 600; font-size: 1rem;
+        }
+        button.back-btn:hover { border-color: #cbd5e1; color: var(--text-dark); background: #f8fafc; }
+
+        #loading {
+            position: absolute; top:0; left:0; width:100%; height:100%;
+            background: white; z-index: 20;
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 600; color: #4361ee; font-size: 1.2rem;
+        }
     </style>
 </head>
 <body>
 
     <div class="detail-card">
-        <div id="loading">Se încarcă detaliile...</div>
+        <div id="loading">Se încarcă detaliile produsului...</div>
         
-        <div id="content" style="display:none;">
+        <div class="product-visual">
+            <div class="product-icon">📦</div>
+        </div>
+
+        <div class="product-info" id="content" style="display:none; width: 100%;">
             <h1 id="d_nume">Nume Produs</h1>
-            <div class="info-row"><strong>Producător:</strong> <span id="d_prod">...</span></div>
-            <div class="info-row"><strong>Țara:</strong> <span id="d_tara">...</span></div>
-            <div class="info-row"><strong>Expiră la:</strong> <span id="d_exp">...</span></div>
             
-            <div class="info-row">
-                <strong>Stoc Disponibil:</strong> 
-                <span id="d_stoc" style="color:blue; font-weight:bold">...</span> buc.
+            <div class="price-section">
+                <div class="price-tag" id="d_pret">0.00 <small>RON</small></div>
+                <div class="stock-badge" id="stockBadge">
+                    Stoc: <span id="d_stoc">...</span>
+                </div>
+            </div>
+
+            <div class="specs-grid">
+                <div class="spec-item">
+                    <span class="spec-label">Producător</span>
+                    <span class="spec-value" id="d_prod">...</span>
+                </div>
+                <div class="spec-item">
+                    <span class="spec-label">Origine</span>
+                    <span class="spec-value" id="d_tara">...</span>
+                </div>
+                
+                <div class="spec-item">
+                    <span class="spec-label">Data Producere</span>
+                    <span class="spec-value" id="d_data_prod">...</span>
+                </div>
             </div>
             
-            <div class="price-tag" id="d_pret">0.00 RON</div>
-
             <div class="action-area">
-                <button class="back-btn" onclick="window.history.back()">Înapoi</button>
+                <button class="back-btn" onclick="window.history.back()">← Înapoi</button>
                 <input type="number" id="cantitate" value="1" min="1">
-                <button id="btnAdauga" class="cart-btn" onclick="adaugaInCos()">🛒 Adaugă în Coș</button>
+                <button id="btnAdauga" class="cart-btn" onclick="adaugaInCos()">
+                    🛒 Adaugă în Coș
+                </button>
             </div>
         </div>
     </div>
 
     <script>
-        // --- 1. VARIABILE GLOBALE ---
         const API = "http://localhost:8080/api";
         const urlParams = new URLSearchParams(window.location.search);
         const furnizareId = urlParams.get('id');
         const clientId = localStorage.getItem('clientId');
+        let currentOffer = null;
 
-        let currentOffer = null; // Aici stocam datele de la server
-
-        // Validare: Daca nu esti logat, te trimite la login
         if(!clientId) {
             alert("Trebuie să fii logat!");
             window.location.href = "index.html";
         }
 
-        // Pornire
         loadDetails();
 
-        // --- 2. INCARCARE DATE ---
         async function loadDetails() {
             try {
                 const res = await fetch(`${API}/furnizari/${furnizareId}`);
@@ -73,25 +227,29 @@
                 
                 currentOffer = await res.json();
                 
-                // Populare HTML
                 document.getElementById('d_nume').innerText = currentOffer.produs.denumire;
                 document.getElementById('d_prod').innerText = currentOffer.producator.denumire;
                 document.getElementById('d_tara').innerText = currentOffer.producator.taraOrigine;
-                document.getElementById('d_exp').innerText = currentOffer.produs.dataExpirare;
-                document.getElementById('d_pret').innerText = currentOffer.pretAchizitie + " RON";
+                
+                // --- MODIFICAT AICI: Afisam Data Producere ---
+                // Am schimbat ID-ul din HTML in 'd_data_prod' si variabila in 'dataProducere'
+                document.getElementById('d_data_prod').innerText = currentOffer.produs.dataProducere;
+                
+                document.getElementById('d_pret').innerHTML = currentOffer.pretAchizitie + ' <small>RON</small>';
                 
                 // LOGICA STOC
                 const stocElement = document.getElementById('d_stoc');
+                const badge = document.getElementById('stockBadge');
                 const btn = document.getElementById('btnAdauga');
                 const inputCantitate = document.getElementById('cantitate');
                 
-                // Stocul vine de la server. Daca e undefined, punem 0.
                 const stocCurent = currentOffer.stoc !== undefined ? currentOffer.stoc : 0;
                 stocElement.innerText = stocCurent;
 
                 if (stocCurent <= 0) {
-                    stocElement.innerText = "STOC EPUIZAT";
-                    stocElement.style.color = "red";
+                    stocElement.innerText = "EPUIZAT";
+                    badge.classList.add('out'); 
+                    
                     btn.disabled = true;
                     btn.innerText = "Indisponibil";
                     inputCantitate.disabled = true;
@@ -100,73 +258,54 @@
                     inputCantitate.setAttribute("max", stocCurent);
                 }
 
-                // Afisare
                 document.getElementById('loading').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
+                document.getElementById('content').style.display = 'flex'; 
 
             } catch (e) { 
                 document.getElementById('loading').innerText = "Eroare: " + e.message; 
             }
         }
 
-        // --- 3. ADAUGARE IN COS ---
         function adaugaInCos() {
             const cantitateCeruta = parseInt(document.getElementById('cantitate').value);
             const stocDisponibil = currentOffer.stoc !== undefined ? currentOffer.stoc : 0;
 
-            // Validare simpla
             if (isNaN(cantitateCeruta) || cantitateCeruta <= 0) {
                 alert("Cantitatea trebuie să fie minim 1.");
                 return;
             }
 
-            // Construim cheia specifica clientului
             const cartKey = 'shoppingCart_' + clientId;
-            
-            // Citim cosul existent
             let cos = JSON.parse(localStorage.getItem(cartKey)) || [];
-
-            // Verificam daca produsul e deja in cos
             const indexExistent = cos.findIndex(item => item.furnizareId === currentOffer.id);
 
             if (indexExistent !== -1) {
-                // --- UPDATE ---
                 const cantitateInCos = cos[indexExistent].cantitate;
-                
                 if (cantitateInCos + cantitateCeruta > stocDisponibil) {
-                    alert(`Nu poți adăuga încă ${cantitateCeruta} buc! \nAi deja ${cantitateInCos} în coș, iar stocul total este ${stocDisponibil}.`);
+                    alert(`Stoc insuficient! Ai deja ${cantitateInCos} buc în coș.`);
                     return;
                 }
-                
                 cos[indexExistent].cantitate += cantitateCeruta;
-                alert("Cantitatea din coș a fost actualizată!");
-
+                alert("Coș actualizat!");
             } else {
-                // --- INSERT ---
                 if (cantitateCeruta > stocDisponibil) {
-                    alert(`Nu poți adăuga mai mult decât stocul disponibil (${stocDisponibil}).`);
+                    alert(`Stoc insuficient! Maxim ${stocDisponibil} buc.`);
                     document.getElementById('cantitate').value = stocDisponibil;
                     return;
                 }
-
-                const itemCos = {
+                cos.push({
                     furnizareId: currentOffer.id,
                     produsId: currentOffer.produs.id,
                     nume: currentOffer.produs.denumire,
                     producator: currentOffer.producator.denumire,
                     pret: currentOffer.pretAchizitie,
                     cantitate: cantitateCeruta,
-                    stocMax: stocDisponibil // Salvam stocul maxim pentru validari ulterioare in cos
-                };
-
-                cos.push(itemCos);
-                alert("Produs adăugat în coș!");
+                    stocMax: stocDisponibil 
+                });
+                alert("Adăugat în coș!");
             }
 
-            // Salvam inapoi
             localStorage.setItem(cartKey, JSON.stringify(cos));
-
-            // Redirect
             window.location.href = "dashboard_client.html";
         }
     </script>

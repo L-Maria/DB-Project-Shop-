@@ -2,101 +2,423 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <title>Panou Producător</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panou Producător Modern</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f7f6; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .btn-logout { background: #dc3545; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; }
-        
-        .card { background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); margin-bottom: 20px; }
-        h2 { margin-top: 0; color: #333; }
-        
-        /* Formular inputs */
-        input { width: 100%; padding: 10px; margin: 5px 0 15px 0; border: 1px solid #ddd; border-radius: 5px; box-sizing: border-box; }
-        
-        button.add-btn { background: #28a745; color: white; border: none; padding: 12px; width: 100%; border-radius: 5px; cursor: pointer; font-size: 16px; }
-        button.add-btn:hover { background: #218838; }
+        :root {
+            /* Paleta de culori modernă */
+            --primary-gradient: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%); /* Gradient Albastru-Indigo */
+            --secondary-color: #4895ef;
+            --accent-green: #4cc9f0; /* Verde menta pentru stoc */
+            --accent-orange: #ff9f1c; /* Portocaliu editare */
+            --danger-color: #ef233c; /* Rosu stergere */
+            
+            --bg-body: #f4f7fe; /* Fundal foarte deschis, ușor albăstrui */
+            --bg-card: #ffffff;
+            
+            --text-dark: #2b2d42;
+            --text-muted: #8d99ae;
+            
+            --border-radius-card: 16px;
+            --border-radius-input: 10px;
+            
+            /* Umbre mai fine și mai moderne */
+            --shadow-sm: 0 2px 8px rgba(67, 97, 238, 0.05);
+            --shadow-md: 0 8px 24px rgba(67, 97, 238, 0.08);
+            --shadow-hover: 0 12px 32px rgba(67, 97, 238, 0.15);
+        }
 
-        /* Tabel */
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #ddd; }
-        th { background-color: #007bff; color: white; }
-        
-        /* Butoane Actiuni */
-        .btn-action { padding: 6px 12px; border-radius: 4px; border: none; cursor: pointer; color: white; margin-right: 5px; }
-        .btn-edit { background-color: #ffc107; color: #333; }
-        .btn-delete { background-color: #dc3545; }
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-dark);
+            margin: 0; 
+            padding: 0; 
+            min-height: 100vh;
+            background-image: radial-gradient(at 0% 0%, rgba(67, 97, 238, 0.05) 0px, transparent 50%), 
+                              radial-gradient(at 100% 100%, rgba(76, 201, 240, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
 
-        /* --- STILURI MODAL (Pop-up de Editare) --- */
+        .container { 
+            max-width: 1150px; 
+            margin: 40px auto; 
+            padding: 0 25px; 
+        }
+        
+        /* --- HEADER MODERNIZAT --- */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            background: var(--bg-card);
+            padding: 20px 30px;
+            border-radius: var(--border-radius-card);
+            box-shadow: var(--shadow-md);
+            margin-bottom: 35px;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        /* Adaugam o dunga colorata sus */
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .header h1 { 
+            font-size: 1.6rem; 
+            font-weight: 700; 
+            color: var(--text-dark); 
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        
+        .header-icon {
+            background: var(--primary-gradient);
+            color: white;
+            width: 40px; height: 40px;
+            display: flex; align-items: center; justify-content: center;
+            border-radius: 10px;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 10px rgba(67, 97, 238, 0.3);
+        }
+
+        .btn-logout { 
+            background: transparent; 
+            color: var(--danger-color); 
+            border: 2px solid rgba(239, 35, 60, 0.3); 
+            padding: 10px 24px; 
+            border-radius: var(--border-radius-input); 
+            cursor: pointer; 
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .btn-logout:hover { 
+            background: var(--danger-color); 
+            color: white; 
+            border-color: var(--danger-color);
+            box-shadow: 0 4px 12px rgba(239, 35, 60, 0.2);
+        }
+
+        /* --- CARDS MODERNIZATE --- */
+        .card { 
+            background: var(--bg-card); 
+            padding: 35px; 
+            border-radius: var(--border-radius-card); 
+            box-shadow: var(--shadow-md); 
+            margin-bottom: 35px; 
+            border: 1px solid rgba(255,255,255,0.5);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        
+        /* Efect subtil la hover pe carduri */
+        .card:hover {
+            box-shadow: var(--shadow-hover);
+            /* transform: translateY(-2px); Opțional: mișcare ușoară */
+        }
+        
+        h2 { 
+            margin-top: 0; 
+            margin-bottom: 25px;
+            color: var(--text-dark); 
+            font-size: 1.35rem;
+            font-weight: 700;
+            display: flex; align-items: center; gap: 10px;
+        }
+        
+        /* Linia decorativa de sub titluri */
+        h2::after {
+            content: ''; flex: 1; height: 1px; background: rgba(0,0,0,0.05); margin-left: 15px;
+        }
+
+        /* --- FORM GRID & INPUTS --- */
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 25px;
+        }
+
+        @media(min-width: 900px) {
+            .form-grid {
+                grid-template-columns: repeat(12, 1fr); /* Grid de 12 coloane pentru flexibilitate */
+            }
+            .span-12 { grid-column: span 12; }
+            .span-6 { grid-column: span 6; }
+            .span-4 { grid-column: span 4; }
+            .span-3 { grid-column: span 3; }
+        }
+
+        .form-group { display: flex; flex-direction: column; }
+
+        label {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+            margin-left: 4px;
+        }
+
+        input { 
+            width: 100%; 
+            padding: 14px 18px; 
+            /* Fundal usor colorat pentru inputs */
+            background: #f8faff;
+            border: 1px solid #e1e8f5; 
+            border-radius: var(--border-radius-input); 
+            box-sizing: border-box; 
+            font-family: inherit;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            transition: all 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            background: #fff;
+            border-color: var(--secondary-color);
+            box-shadow: 0 0 0 4px rgba(72, 149, 239, 0.15);
+        }
+        
+        input::placeholder { color: #bdc3d1; }
+        
+        /* BUTON PRINCIPAL CU GRADIENT */
+        button.add-btn { 
+            background: var(--primary-gradient); 
+            color: white; 
+            border: none; 
+            padding: 16px; 
+            border-radius: var(--border-radius-input); 
+            cursor: pointer; 
+            font-size: 1.05rem; 
+            font-weight: 700;
+            margin-top: 15px;
+            width: 100%;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 8px 20px -4px rgba(67, 97, 238, 0.4);
+            letter-spacing: 0.5px;
+        }
+        button.add-btn:hover { 
+            transform: translateY(-3px);
+            box-shadow: 0 12px 25px -4px rgba(67, 97, 238, 0.5);
+            filter: brightness(1.05);
+        }
+        button.add-btn:active { transform: translateY(-1px); }
+
+        /* --- TABLE MODERNIZAT --- */
+        .table-responsive {
+            overflow-x: auto;
+            border-radius: var(--border-radius-card);
+            border: 1px solid rgba(0,0,0,0.04);
+        }
+
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            border-spacing: 0;
+        }
+        
+        /* Header Tabel Colorat Subtil */
+        th { 
+            text-align: left; 
+            padding: 18px 20px; 
+            background: #f1f4fd; /* Albastru foarte deschis */
+            color: var(--text-dark);
+            font-size: 0.85rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1.2px;
+        }
+        
+        td { 
+            padding: 18px 20px; 
+            border-bottom: 1px solid #edf2f7; 
+            color: var(--text-dark);
+            vertical-align: middle;
+            background: white;
+            transition: background 0.2s;
+        }
+
+        tr:last-child td { border-bottom: none; }
+        
+        /* Efect hover pe randuri */
+        tr:hover td { 
+            background-color: #f8faff; 
+        }
+        
+        /* Stiluri pentru celule */
+        .id-cell { font-family: monospace; color: var(--text-muted); font-weight: 600; }
+        .prod-name { font-weight: 600; font-size: 1.05rem; }
+        .price-tag { font-weight: 700; color: var(--text-dark); }
+        .currency { font-weight: normal; color: var(--text-muted); font-size: 0.9em;}
+
+        /* Stock Badge Modern */
+        .stock-badge {
+            background: linear-gradient(135deg, #4cc9f0 0%, #4895ef 100%);
+            color: white;
+            padding: 6px 14px;
+            border-radius: 30px;
+            font-weight: 700;
+            font-size: 0.85em;
+            box-shadow: 0 4px 10px rgba(76, 201, 240, 0.2);
+            display: inline-block;
+        }
+        
+        /* Actiuni Tabel */
+        .actions-cell { display: flex; gap: 10px; }
+
+        .btn-action { 
+            width: 38px; height: 38px;
+            border-radius: 10px; 
+            border: none; 
+            cursor: pointer; 
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem; 
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .btn-action:hover { transform: scale(1.1); }
+
+        .btn-edit { 
+            background-color: rgba(255, 159, 28, 0.1); 
+            color: var(--accent-orange);
+            border: 1px solid rgba(255, 159, 28, 0.2);
+        }
+        .btn-edit:hover { background: var(--accent-orange); color: white; box-shadow: 0 4px 12px rgba(255, 159, 28, 0.3);}
+
+        .btn-delete { 
+            background-color: rgba(239, 35, 60, 0.1); 
+            color: var(--danger-color);
+            border: 1px solid rgba(239, 35, 60, 0.2);
+        }
+        .btn-delete:hover { background: var(--danger-color); color: white; box-shadow: 0 4px 12px rgba(239, 35, 60, 0.3);}
+
+        /* --- MODAL MODERNIZAT --- */
         .modal-overlay {
-            display: none; /* Ascuns implicit */
+            display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1000;
+            background: rgba(43, 45, 66, 0.6); /* Darker overlay */
+            backdrop-filter: blur(8px); /* Blur mai puternic */
+            z-index: 1000;
             justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
         }
+
+        .modal-overlay[style*="display: flex"] { opacity: 1; }
+
         .modal-content {
-            background: white; width: 400px; padding: 25px; border-radius: 10px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            background: var(--bg-card); 
+            width: 100%; max-width: 480px; 
+            padding: 40px; 
+            border-radius: 24px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            transform: translateY(20px) scale(0.95);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid rgba(255,255,255,0.8);
         }
-        .modal-buttons { display: flex; gap: 10px; margin-top: 15px; }
+
+        .modal-overlay[style*="display: flex"] .modal-content { transform: translateY(0) scale(1); }
+
+        .modal-buttons { display: flex; gap: 15px; margin-top: 30px; }
+        
+        /* Butoane in modal */
+        .modal-buttons .add-btn { margin-top: 0; flex: 1;}
+        .btn-cancel {
+            background: #f1f3f5;
+            color: var(--text-dark);
+            box-shadow: none; border: 1px solid #e9ecef;
+        }
+        .btn-cancel:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+            filter: brightness(1);
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <h1 id="welcomeText">Panou Control</h1>
+        <h1>
+            <span class="header-icon">🚀</span>
+            <span id="welcomeText">Panou Control</span>
+        </h1>
         <button onclick="logout()" class="btn-logout">Deconectare</button>
     </div>
 
     <div class="card">
-        <h2>Adaugă Produs Nou</h2>
-        <input type="text" id="prodNume" placeholder="Denumire Produs">
-        <label>Data Producere:</label>
-        <input type="date" id="prodData">
-        <label>Preț Vânzare (Lei):</label>
-        <input type="number" id="prodPret" placeholder="Pret">
-        <label>Stoc Inițial:</label>
-        <input type="number" id="prodStoc" placeholder="Cantitate">
+        <h2>✨ Adaugă Produs Nou</h2>
         
-        <button class="add-btn" onclick="adaugaProdus()">Salvează și Adaugă în Stoc</button>
+        <div class="form-grid">
+            <div class="form-group span-12">
+                <label>Denumire Produs</label>
+                <input type="text" id="prodNume" placeholder="Ex: Laptop Gaming X500">
+            </div>
+
+            <div class="form-group span-4">
+                <label>Data Producere</label>
+                <input type="date" id="prodData">
+            </div>
+
+            <div class="form-group span-4">
+                <label>Preț Vânzare (Lei)</label>
+                <input type="number" id="prodPret" placeholder="0.00">
+            </div>
+
+            <div class="form-group span-4">
+                <label>Stoc Inițial (Buc)</label>
+                <input type="number" id="prodStoc" placeholder="0">
+            </div>
+        </div>
+        
+        <button class="add-btn" onclick="adaugaProdus()">Publice Oferta</button>
     </div>
 
-    <div class="card">
-        <h2>Ofertele Tale</h2>
-        <table id="tabelProduse">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>Denumire</th>
-                    <th>Preț</th>
-                    <th>Stoc</th>
-                    <th>Acțiuni</th>
-                </tr>
-            </thead>
-            <tbody id="listaBody"></tbody>
-        </table>
+    <div class="card" style="padding: 0; overflow: hidden;"> <h2 style="margin: 25px 35px 20px 35px;">📦 Ofertele Tale Active</h2>
+        <div class="table-responsive">
+            <table id="tabelProduse">
+                <thead>
+                    <tr>
+                        <th style="padding-left: 35px;">ID #</th>
+                        <th>Produs</th>
+                        <th>Preț Unitar</th>
+                        <th>Disponibilitate</th>
+                        <th style="padding-right: 35px;">Acțiuni</th>
+                    </tr>
+                </thead>
+                <tbody id="listaBody">
+                    </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <div class="modal-overlay" id="editModal">
     <div class="modal-content">
-        <h2>Editează Produs</h2>
+        <h2 style="border:none; margin-bottom: 10px; font-size: 1.5rem;">🛠️ Editează Produs</h2>
+        <p style="color: var(--text-muted); margin-bottom: 30px;">Modifică detaliile ofertei tale.</p>
         
         <input type="hidden" id="editFurnizareId">
         <input type="hidden" id="editProdusId">
 
-        <label>Denumire Produs:</label>
-        <input type="text" id="editNume">
+        <div class="form-group" style="margin-bottom: 20px;">
+            <label>Denumire Produs:</label>
+            <input type="text" id="editNume">
+        </div>
         
-        <label>Preț Nou (Lei):</label>
-        <input type="number" id="editPret">
+        <div class="form-group">
+            <label>Preț Nou (Lei):</label>
+            <input type="number" id="editPret">
+        </div>
 
         <div class="modal-buttons">
-            <button class="add-btn" style="background:#007bff" onclick="salveazaModificari()">Salvează</button>
-            <button class="add-btn" style="background:#6c757d" onclick="inchideModal()">Anulează</button>
+            <button class="add-btn" onclick="salveazaModificari()">Salvează Modificările</button>
+            <button class="add-btn btn-cancel" onclick="inchideModal()">Anulează</button>
         </div>
     </div>
 </div>
@@ -123,19 +445,22 @@
         tbody.innerHTML = '';
 
         produseleMele.forEach(item => {
+            // Aici am adaugat clase CSS pentru stilizare mai buna a celulelor
             const r = `
                 <tr>
-                    <td>${item.produs.id}</td>
-                    <td>${item.produs.denumire}</td>
-                    <td>${item.pretAchizitie} RON</td>
-                    <td>${item.stoc} buc</td>
-                    <td>
-                        <button class="btn-action btn-edit" 
-                            onclick="deschideModal(${item.id}, ${item.produs.id}, '${item.produs.denumire}', ${item.pretAchizitie})">
-                            Editează
-                        </button>
-                        
-                        <button class="btn-action btn-delete" onclick="stergeProdus(${item.produs.id})">Șterge</button>
+                    <td style="padding-left: 35px;"><span class="id-cell">#${item.produs.id}</span></td>
+                    <td><span class="prod-name">${item.produs.denumire}</span></td>
+                    <td><span class="price-tag">${item.pretAchizitie} <small class="currency">RON</small></span></td>
+                    <td><span class="stock-badge">In Stoc: ${item.stoc}</span></td>
+                    <td style="padding-right: 35px;">
+                        <div class="actions-cell">
+                            <button class="btn-action btn-edit" title="Editează"
+                                onclick="deschideModal(${item.id}, ${item.produs.id}, '${item.produs.denumire}', ${item.pretAchizitie})">
+                                ✏️
+                            </button>
+                            
+                            <button class="btn-action btn-delete" title="Șterge" onclick="stergeProdus(${item.produs.id})">🗑️</button>
+                        </div>
                     </td>
                 </tr>
             `;
@@ -146,13 +471,11 @@
     // --- LOGICA PENTRU MODAL (EDITARE) ---
     
     function deschideModal(furnizareId, produsId, numeCurent, pretCurent) {
-        // 1. Populam campurile din modal cu datele existente
         document.getElementById('editFurnizareId').value = furnizareId;
         document.getElementById('editProdusId').value = produsId;
         document.getElementById('editNume').value = numeCurent;
         document.getElementById('editPret').value = pretCurent;
 
-        // 2. Afisam modalul
         document.getElementById('editModal').style.display = 'flex';
     }
 
@@ -167,21 +490,18 @@
         const pretNou = document.getElementById('editPret').value;
 
         try {
-            // PAS 1: Actualizam NUMELE Produsului
             await fetch(`${API}/produse/${produsId}`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ denumire: numeNou })
             });
 
-            // PAS 2: Actualizam PRETUL Furnizarii
             await fetch(`${API}/furnizari/${furnizareId}`, {
                 method: 'PUT',
                 headers: {'Content-Type': 'application/json'},
                 body: JSON.stringify({ pret: parseFloat(pretNou) })
             });
 
-            // Refresh si inchidere
             inchideModal();
             incarcaProduseleMele();
             alert("Produs actualizat!");
@@ -192,7 +512,7 @@
         }
     }
 
-    // --- RESTUL FUNCTIILOR (ADAUGARE / STERGERE) ---
+    // --- RESTUL FUNCTIILOR ---
 
     async function adaugaProdus() {
         const nume = document.getElementById('prodNume').value;
@@ -200,7 +520,6 @@
         const pret = document.getElementById('prodPret').value;
         const stoc = document.getElementById('prodStoc').value;
 
-        // 1. Validare
         if(!nume || !dataProd || !pret || !stoc) { 
             alert("Te rog completează toate câmpurile!"); 
             return; 
@@ -209,7 +528,6 @@
         try {
             console.log("1. Se creeaza produsul...");
             
-            // PAS A: Trimitem Produsul (Backend-ul va verifica daca exista deja)
             const resProd = await fetch(`${API}/produse`, {
                 method: 'POST',
                 headers: {'Content-Type': 'application/json'},
@@ -224,7 +542,6 @@
             const p = await resProd.json();
             console.log("Produs ID obtinut:", p.id);
 
-            // PAS B: Trimitem Furnizarea (Legatura + Stoc)
             console.log("2. Se adauga stocul...");
             const resFurnizare = await fetch(`${API}/furnizari/adauga`, {
                 method: 'POST',
@@ -238,20 +555,16 @@
             });
 
             if (!resFurnizare.ok) {
-                // Dacă producătorul nu există (ai fost sters), aici va da eroare
                 const msg = await resFurnizare.text();
                 throw new Error("Eroare Backend: " + msg);
             }
 
-            // Daca ajungem aici, totul e OK
             alert("Produs salvat cu succes!");
 
-            // 3. Golim formularul
             document.getElementById('prodNume').value = '';
             document.getElementById('prodPret').value = '';
             document.getElementById('prodStoc').value = '';
 
-            // 4. REINCARCAM TABELUL (Critic!)
             console.log("3. Se reincarca tabelul...");
             await incarcaProduseleMele();
 

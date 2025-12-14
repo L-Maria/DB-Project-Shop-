@@ -2,82 +2,223 @@
 <html lang="ro">
 <head>
     <meta charset="UTF-8">
-    <title>Magazin Online</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Magazin Online Premium</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Segoe UI', sans-serif; background-color: #f0f2f5; padding: 20px; }
+        :root {
+            /* Aceeasi paleta ca la Producator pentru consistenta */
+            --primary-gradient: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            --secondary-color: #4895ef;
+            --success-color: #2a9d8f; /* Teal pentru pret/succes */
+            --danger-color: #ef233c;
+            --warning-color: #ff9f1c;
+            
+            --bg-body: #f4f7fe;
+            --bg-card: #ffffff;
+            
+            --text-dark: #2b2d42;
+            --text-muted: #8d99ae;
+            
+            --border-radius-card: 16px;
+            --border-radius-input: 10px;
+            
+            --shadow-md: 0 8px 24px rgba(67, 97, 238, 0.08);
+            --shadow-hover: 0 12px 32px rgba(67, 97, 238, 0.15);
+        }
+
+        body { 
+            font-family: 'Inter', sans-serif; 
+            background-color: var(--bg-body); 
+            color: var(--text-dark);
+            margin: 0; padding: 0; 
+            min-height: 100vh;
+            background-image: radial-gradient(at 0% 0%, rgba(67, 97, 238, 0.05) 0px, transparent 50%), 
+                              radial-gradient(at 100% 100%, rgba(42, 157, 143, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
+        }
         
         /* HEADER */
         .header { 
             display: flex; justify-content: space-between; align-items: center; 
-            background: white; padding: 15px 30px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            background: var(--bg-card); 
+            padding: 15px 30px; 
+            margin: 30px auto; max-width: 1200px;
+            border-radius: var(--border-radius-card); 
+            box-shadow: var(--shadow-md);
+            position: relative; overflow: hidden;
         }
+        
+        .header::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .header h1 { 
+            margin: 0; font-size: 1.5rem; font-weight: 800; 
+            background: var(--primary-gradient); -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            display: flex; align-items: center; gap: 10px;
+        }
+
         .header-right { display: flex; gap: 15px; align-items: center; }
-        .btn-logout { background: #dc3545; color: white; border: none; padding: 8px 15px; border-radius: 5px; cursor: pointer; }
+
+        .btn-logout { 
+            background: transparent; color: var(--danger-color); 
+            border: 2px solid rgba(239, 35, 60, 0.3); padding: 8px 20px; 
+            border-radius: 8px; cursor: pointer; font-weight: 600; transition: 0.3s;
+        }
+        .btn-logout:hover { background: var(--danger-color); color: white; }
         
         /* BUTON COS */
         .cart-trigger { 
-            background-color: #007bff; color: white; padding: 10px 20px; 
-            border-radius: 20px; cursor: pointer; font-weight: bold; display: flex; align-items: center; gap: 8px; 
+            background: var(--primary-gradient); 
+            color: white; padding: 10px 24px; 
+            border-radius: 30px; cursor: pointer; font-weight: 600; 
+            display: flex; align-items: center; gap: 10px; 
+            box-shadow: 0 4px 15px rgba(67, 97, 238, 0.3);
+            transition: transform 0.2s, box-shadow 0.2s;
         }
-        .cart-trigger:hover { background-color: #0056b3; }
+        .cart-trigger:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(67, 97, 238, 0.4); }
+        .badge { background: white; color: #3f37c9; padding: 2px 8px; border-radius: 10px; font-size: 0.85em; font-weight: 800; }
 
         /* GRID PRODUSE */
-        .grid-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 20px; }
-        .card { background: white; border-radius: 10px; overflow: hidden; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; transition: 0.2s; }
-        .card:hover { transform: translateY(-5px); }
-        .card-img { height: 150px; background-color: #eee; display: flex; align-items: center; justify-content: center; font-size: 40px; }
-        .card-body { padding: 15px; }
-        .price { color: #28a745; font-weight: bold; font-size: 1.2em; }
+        .grid-container { 
+            display: grid; 
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); 
+            gap: 30px; 
+            max-width: 1200px; margin: 0 auto; padding-bottom: 50px;
+        }
+
+        .card { 
+            background: var(--bg-card); border-radius: var(--border-radius-card); 
+            overflow: hidden; box-shadow: var(--shadow-md); cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); border: 1px solid rgba(255,255,255,0.8);
+            display: flex; flex-direction: column;
+        }
         
+        .card:hover { transform: translateY(-8px); box-shadow: var(--shadow-hover); }
+
+        .card-img { 
+            height: 180px; background: linear-gradient(to top, #f8f9fa, #ffffff); 
+            display: flex; align-items: center; justify-content: center; font-size: 60px; 
+            border-bottom: 1px solid #f0f0f0; position: relative;
+        }
+        
+        .card-body { padding: 20px; flex: 1; display: flex; flex-direction: column; justify-content: space-between; }
+        
+        .card h3 { margin: 0 0 5px 0; font-size: 1.1rem; color: var(--text-dark); }
+        .producer { font-size: 0.85em; color: var(--text-muted); margin-bottom: 15px; font-weight: 500;}
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; margin-top: auto; }
+        
+        .price { color: var(--text-dark); font-weight: 800; font-size: 1.3em; }
+        .price small { font-size: 0.6em; font-weight: normal; color: var(--text-muted); }
+
+        .stock-tag {
+            font-size: 0.75em; font-weight: 600; 
+            padding: 4px 10px; border-radius: 20px;
+            background: #eef2ff; color: #4361ee;
+        }
+
         /* MODAL (COS) */
         .modal-overlay {
             display: none; 
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.5); z-index: 1000;
-            justify-content: center; align-items: center;
+            background: rgba(43, 45, 66, 0.6); backdrop-filter: blur(8px);
+            z-index: 1000; justify-content: center; align-items: center;
+            opacity: 0; transition: opacity 0.3s ease;
         }
+        .modal-overlay[style*="display: flex"] { opacity: 1; }
+
         .modal-content {
-            background: white; width: 500px; max-height: 80vh;
-            border-radius: 10px; padding: 20px;
+            background: white; width: 550px; max-height: 85vh;
+            border-radius: 24px; padding: 0;
             display: flex; flex-direction: column; position: relative;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25);
+            transform: scale(0.95); transition: transform 0.3s;
         }
-        .modal-header { font-size: 1.5em; font-weight: bold; margin-bottom: 15px; border-bottom: 1px solid #ddd; padding-bottom: 10px; display: flex; justify-content: space-between; align-items: center;}
-        .close-modal { position: absolute; top: 15px; right: 20px; cursor: pointer; font-size: 1.5em; color: #aaa; }
+        .modal-overlay[style*="display: flex"] .modal-content { transform: scale(1); }
+
+        .modal-header { 
+            padding: 25px; border-bottom: 1px solid #f0f0f0;
+            display: flex; justify-content: space-between; align-items: center;
+        }
+        .modal-header h2 { margin: 0; font-size: 1.4rem; color: var(--text-dark); }
         
-        .cart-items { overflow-y: auto; flex: 1; margin-bottom: 20px; }
-        .cart-item { display: flex; justify-content: space-between; border-bottom: 1px solid #eee; padding: 10px 0; }
+        .close-modal { font-size: 2rem; color: var(--text-muted); cursor: pointer; line-height: 20px; transition: 0.2s;}
+        .close-modal:hover { color: var(--danger-color); }
+
+        .cart-items { overflow-y: auto; flex: 1; padding: 25px; }
         
-        .total-section { font-size: 1.2em; font-weight: bold; text-align: right; margin-bottom: 15px; }
-        .btn-checkout { background: #28a745; color: white; width: 100%; padding: 15px; border: none; border-radius: 5px; font-size: 1.1em; cursor: pointer; }
-        .btn-clear { background: #dc3545; color: white; border: none; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 0.8em; }
+        .cart-item { 
+            display: flex; justify-content: space-between; align-items: center;
+            background: #f8faff; padding: 15px; border-radius: 12px; margin-bottom: 15px;
+            border: 1px solid #eef2ff;
+        }
+        
+        .cart-footer { padding: 25px; background: #fff; border-top: 1px solid #f0f0f0; border-radius: 0 0 24px 24px;}
+        
+        .total-section { 
+            font-size: 1.4em; font-weight: 800; text-align: right; margin-bottom: 20px; 
+            color: var(--text-dark);
+        }
+        
+        .btn-checkout { 
+            background: var(--primary-gradient); color: white; width: 100%; padding: 16px; 
+            border: none; border-radius: 12px; font-size: 1.1em; font-weight: 700; cursor: pointer; 
+            transition: 0.3s; box-shadow: 0 8px 20px -4px rgba(67, 97, 238, 0.4);
+        }
+        .btn-checkout:hover { transform: translateY(-2px); box-shadow: 0 12px 25px -4px rgba(67, 97, 238, 0.5); }
+
+        .btn-clear { 
+            background: rgba(239, 35, 60, 0.1); color: var(--danger-color); 
+            border: none; padding: 8px 16px; border-radius: 8px; 
+            cursor: pointer; font-size: 0.9em; font-weight: 600; transition: 0.2s;
+        }
+        .btn-clear:hover { background: var(--danger-color); color: white; }
+
+        /* Input Cantitate Modern */
+        input[type="number"] {
+            padding: 8px; border: 1px solid #ddd; border-radius: 8px; text-align: center; font-weight: 600;
+            width: 60px; outline: none; transition: 0.2s;
+        }
+        input[type="number"]:focus { border-color: #4361ee; box-shadow: 0 0 0 3px rgba(67, 97, 238, 0.1); }
     </style>
 </head>
 <body>
 
     <div class="header">
-        <h1 style="margin:0" id="welcomeMsg">Magazin</h1>
+        <h1>🛍️ Magazin Online</h1>
+        <div style="flex:1; text-align:center; font-weight:500; color:#888" id="welcomeMsg">Salut...</div>
         <div class="header-right">
             <div class="cart-trigger" onclick="openCart()">
-                🛒 Coșul meu <span id="cartCount">(0)</span>
+                <span>Coșul meu</span> 
+                <span class="badge" id="cartCount">0</span>
             </div>
-            <button onclick="logout()" class="btn-logout">Logout</button>
+            <button onclick="logout()" class="btn-logout">Deconectare</button>
         </div>
     </div>
 
-    <div class="grid-container" id="productGrid"></div>
+    <div class="grid-container" id="productGrid">
+        </div>
 
     <div class="modal-overlay" id="cartModal">
         <div class="modal-content">
-            <span class="close-modal" onclick="closeCart()">&times;</span>
             <div class="modal-header">
-                Coșul de Cumpărături 
-                <button class="btn-clear" onclick="golesteCos()">Golește</button>
+                <h2>Coș de Cumpărături</h2>
+                <span class="close-modal" onclick="closeCart()">&times;</span>
             </div>
             
-            <div class="cart-items" id="cartList"></div>
+            <div class="cart-items" id="cartList">
+                </div>
 
-            <div class="total-section" id="cartTotal">Total: 0.00 RON</div>
-            <button class="btn-checkout" onclick="finalizeazaComanda()">✅ Cumpără Tot</button>
+            <div class="cart-footer">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px">
+                     <button class="btn-clear" onclick="golesteCos()">🗑️ Golește Coșul</button>
+                     <div class="total-section" style="margin:0" id="cartTotal">Total: 0.00 RON</div>
+                </div>
+                <button class="btn-checkout" onclick="finalizeazaComanda()">💳 Finalizează Comanda</button>
+            </div>
         </div>
     </div>
 
@@ -93,13 +234,12 @@
         // Afisare nume
         document.getElementById('welcomeMsg').innerText = "Salut, " + clientNume;
 
-        // DEFINIM CHEIA COSULUI AICI, CA SA FIE VIZIBILA PESTE TOT
+        // DEFINIM CHEIA COSULUI
         const cartKey = 'shoppingCart_' + clientId; 
 
         // Initializare
         loadOffers();
         updateCartCount(); 
-
 
         // --- 2. LOGICA PENTRU PRODUSE ---
         async function loadOffers() {
@@ -110,7 +250,7 @@
                 grid.innerHTML = '';
 
                 if(offers.length === 0) {
-                    grid.innerHTML = '<p>Nu există produse momentan.</p>';
+                    grid.innerHTML = '<p style="grid-column: 1/-1; text-align:center; color:#888; font-size:1.2em; margin-top:50px;">Nu există produse momentan.</p>';
                     return;
                 }
 
@@ -118,14 +258,19 @@
                     const stocCurent = offer.stoc !== undefined ? offer.stoc : 0;
                     if (stocCurent <= 0) return; // Filtram produsele fara stoc
 
+                    // GENERAM CARDUL CU DESIGN MODERN
                     const card = `
                         <div class="card" onclick="window.location.href='detalii_produs.html?id=${offer.id}'">
                             <div class="card-img">📦</div>
                             <div class="card-body">
-                                <h3>${offer.produs.denumire}</h3>
-                                <div class="producer">Vândut de: ${offer.producator.denumire}</div>
-                                <div class="price">${offer.pretAchizitie} RON</div>
-                                <div style="font-size:0.8em; color:gray">Stoc: ${stocCurent}</div>
+                                <div>
+                                    <h3>${offer.produs.denumire}</h3>
+                                    <div class="producer">Vândut de: ${offer.producator.denumire}</div>
+                                </div>
+                                <div class="card-footer">
+                                    <div class="price">${offer.pretAchizitie} <small>RON</small></div>
+                                    <div class="stock-tag">Stoc: ${stocCurent}</div>
+                                </div>
                             </div>
                         </div>`;
                     grid.innerHTML += card;
@@ -137,7 +282,7 @@
 
         function updateCartCount() {
             const cos = JSON.parse(localStorage.getItem(cartKey)) || [];
-            document.getElementById('cartCount').innerText = `(${cos.length})`;
+            document.getElementById('cartCount').innerText = `${cos.length}`;
         }
 
         function openCart() {
@@ -147,32 +292,38 @@
             let total = 0;
 
             if(cos.length === 0) {
-                listContainer.innerHTML = '<p style="text-align:center; color:#888;">Coșul este gol.</p>';
+                listContainer.innerHTML = `
+                    <div style="text-align:center; color:#888; padding:30px;">
+                        <div style="font-size:3em; margin-bottom:10px;">🛒</div>
+                        <p>Coșul tău este gol.</p>
+                    </div>`;
                 document.getElementById('cartTotal').innerText = `Total: 0.00 RON`;
             } else {
                 cos.forEach((item, index) => {
                     const subtotal = item.pret * item.cantitate;
                     total += subtotal;
+                    
+                    // ITEM COS MODERNIZAT
                     listContainer.innerHTML += `
                         <div class="cart-item">
                             <div style="flex:1">
-                                <b>${item.nume}</b><br>
-                                <small style="color:#666">Furnizor: ${item.producator}</small><br>
-                                <small style="color:${item.cantitate >= item.stocMax ? 'red' : 'green'}">
-                                    Stoc max: ${item.stocMax}
+                                <b style="font-size:1.1em; color:var(--text-dark)">${item.nume}</b><br>
+                                <small style="color:#888">Furnizor: ${item.producator}</small><br>
+                                <small style="color:${item.cantitate >= item.stocMax ? '#ef233c' : '#2a9d8f'}; font-weight:600;">
+                                    Max: ${item.stocMax} buc
                                 </small>
                             </div>
+                            
                             <div style="text-align:right; display:flex; flex-direction:column; align-items:flex-end; gap:5px;">
-                                <div style="display:flex; align-items:center; gap:5px;">
-                                    <span style="font-size:0.9em">${item.pret} Lei x </span>
+                                <div style="display:flex; align-items:center; gap:8px;">
+                                    <span style="font-size:0.9em; color:#555;">${item.pret} Lei x </span>
                                     <input type="number" 
                                            value="${item.cantitate}" 
                                            min="1" 
                                            max="${item.stocMax}"
-                                           style="width:50px; padding:5px; border:1px solid #ccc; border-radius:4px;"
                                            onchange="schimbaCantitate(${index}, this.value)">
                                 </div>
-                                <b>= ${subtotal.toFixed(2)} Lei</b>
+                                <b style="color:var(--text-dark); font-size:1.1em;">= ${subtotal.toFixed(2)} Lei</b>
                             </div>
                         </div>
                     `;
@@ -198,8 +349,7 @@
             cos[index] = item;
             localStorage.setItem(cartKey, JSON.stringify(cos));
             
-            // Re-desenam cosul pentru a actualiza preturile
-            openCart();
+            openCart(); // Redesenam pentru update preturi
             updateCartCount();
         }
 
@@ -208,9 +358,11 @@
         }
 
         function golesteCos() {
-            localStorage.removeItem(cartKey);
-            updateCartCount();
-            openCart();
+            if(confirm("Sigur vrei să golești coșul?")) {
+                localStorage.removeItem(cartKey);
+                updateCartCount();
+                openCart();
+            }
         }
 
         async function finalizeazaComanda() {
@@ -239,17 +391,18 @@
             }
 
             if(erori === 0) {
-                alert("Comanda plasată cu succes!");
-                golesteCos();
+                alert("🎉 Comanda plasată cu succes!");
+                localStorage.removeItem(cartKey); // Golire directa fara confirmare
+                updateCartCount();
                 closeCart();
                 loadOffers(); 
             } else {
-                alert("Unele produse nu au putut fi cumpărate.");
+                alert("⚠️ Unele produse nu au putut fi cumpărate (stoc insuficient).");
             }
         }
 
         function logout() {
-            localStorage.clear(); // Asta e ok, sterge login-ul
+            localStorage.clear();
             window.location.href = "index.html";
         }
     </script>

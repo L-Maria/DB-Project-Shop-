@@ -3,37 +3,61 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Magazin Alimentar - Acces</title>
+    <title>Acces Magazin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --primary-gradient: linear-gradient(135deg, #4361ee 0%, #3f37c9 100%);
+            --bg-body: #f4f7fe;
+            --bg-card: #ffffff;
+            --text-dark: #2b2d42;
+            --text-muted: #8d99ae;
+            --border-radius: 20px;
+            --input-bg: #f8faff;
+            --input-border: #e1e8f5;
+            --shadow-lg: 0 20px 50px rgba(67, 97, 238, 0.15);
+        }
+
         body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #74ebd5, #ACB6E5);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            margin: 0;
+            font-family: 'Inter', sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-dark);
+            display: flex; justify-content: center; align-items: center;
+            min-height: 100vh; margin: 0; padding: 20px;
+            background-image: radial-gradient(at 0% 0%, rgba(67, 97, 238, 0.05) 0px, transparent 50%), 
+                              radial-gradient(at 100% 100%, rgba(42, 157, 143, 0.05) 0px, transparent 50%);
+            background-attachment: fixed;
         }
 
         .container {
-            background: white;
-            padding: 2.5rem;
-            border-radius: 15px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            width: 400px;
+            background: var(--bg-card);
+            padding: 40px;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            width: 100%; max-width: 420px;
             text-align: center;
+            border: 1px solid rgba(255,255,255,0.8);
+            position: relative; overflow: hidden;
         }
 
-        h2 { color: #333; margin-bottom: 20px; }
+        /* Bara decorativa sus */
+        .container::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 5px;
+            background: var(--primary-gradient);
+        }
 
-        /* Selectorul de Rol (Client vs Producator) */
+        h2 { 
+            color: var(--text-dark); margin-bottom: 30px; 
+            font-weight: 800; font-size: 1.8rem; letter-spacing: -0.5px;
+        }
+
+        /* Selectorul de Rol Modernizat */
         .role-switch {
             display: flex;
-            background: #f0f0f0;
-            border-radius: 25px;
-            margin-bottom: 25px;
-            overflow: hidden;
-            border: 1px solid #ddd;
+            background: #f1f4f9;
+            padding: 5px;
+            border-radius: 14px;
+            margin-bottom: 30px;
         }
 
         .role-btn {
@@ -42,49 +66,94 @@
             border: none;
             background: transparent;
             cursor: pointer;
-            font-weight: bold;
-            transition: 0.3s;
-            color: #555;
+            font-weight: 600;
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            border-radius: 10px;
+            color: var(--text-muted);
+            transition: all 0.3s ease;
         }
+
+        .role-btn:hover { color: var(--text-dark); }
 
         .role-btn.active {
-            background: #007bff;
-            color: white;
+            background: white;
+            color: #4361ee;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            font-weight: 700;
         }
 
+        /* Inputs Modernizate */
         input {
             width: 100%;
-            padding: 12px;
+            padding: 14px 18px;
             margin: 8px 0;
-            border: 1px solid #ddd;
-            border-radius: 8px;
+            border: 1px solid var(--input-border);
+            border-radius: 12px;
             box-sizing: border-box;
-            background: #fafafa;
+            background: var(--input-bg);
+            font-family: 'Inter', sans-serif;
+            font-size: 0.95rem;
+            color: var(--text-dark);
+            transition: all 0.2s;
         }
         
-        input:focus { border-color: #007bff; outline: none; background: white; }
+        input:focus { 
+            border-color: #4361ee; 
+            outline: none; 
+            background: white; 
+            box-shadow: 0 0 0 4px rgba(67, 97, 238, 0.1);
+        }
+        
+        input::placeholder { color: #bdc3d1; }
 
+        /* Buton Submit Modern */
         button.submit-btn {
             width: 100%;
-            padding: 12px;
-            background-color: #28a745;
+            padding: 16px;
+            background: var(--primary-gradient);
             color: white;
             border: none;
-            border-radius: 8px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 700;
             cursor: pointer;
-            margin-top: 20px;
-            transition: background 0.3s;
-            font-weight: bold;
+            margin-top: 25px;
+            transition: transform 0.2s, box-shadow 0.2s;
+            box-shadow: 0 10px 20px -5px rgba(67, 97, 238, 0.4);
+            letter-spacing: 0.5px;
         }
 
-        button.submit-btn:hover { background-color: #218838; }
+        button.submit-btn:hover { 
+            transform: translateY(-2px); 
+            box-shadow: 0 15px 25px -5px rgba(67, 97, 238, 0.5);
+            filter: brightness(1.05);
+        }
+        
+        button.submit-btn:active { transform: scale(0.98); }
 
         .hidden { display: none; }
         
-        .footer-link { margin-top: 20px; font-size: 0.9em; color: #666; border-top: 1px solid #eee; padding-top: 15px; }
-        .footer-link a { color: #007bff; cursor: pointer; text-decoration: none; font-weight: bold; }
-        .footer-link a:hover { text-decoration: underline; }
+        /* Footer Links */
+        .footer-link { 
+            margin-top: 30px; 
+            font-size: 0.9rem; 
+            color: var(--text-muted); 
+            border-top: 1px solid #f0f0f0; 
+            padding-top: 20px; 
+        }
+        .footer-link a { 
+            color: #4361ee; 
+            cursor: pointer; 
+            text-decoration: none; 
+            font-weight: 700; 
+            transition: 0.2s;
+        }
+        .footer-link a:hover { text-decoration: underline; color: #3f37c9; }
+        
+        /* Animatie subtila la schimbare */
+        form { animation: fadeIn 0.4s ease; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
@@ -93,8 +162,8 @@
         <h2 id="formTitle">Înregistrare Cont</h2>
 
         <div class="role-switch">
-            <button class="role-btn active" id="btnClient" onclick="switchRole('client')">Sunt Client</button>
-            <button class="role-btn" id="btnProd" onclick="switchRole('producator')">Sunt Producător</button>
+            <button class="role-btn active" id="btnClient" onclick="switchRole('client')">👤 Sunt Client</button>
+            <button class="role-btn" id="btnProd" onclick="switchRole('producator')">🏭 Sunt Producător</button>
         </div>
 
         <form id="signupForm" onsubmit="handleSignup(event)">
@@ -109,15 +178,14 @@
             </div>
 
             <input type="text" id="s_adresa" placeholder="Adresa completă" required>
-            <input type="password" id="s_password" placeholder="Alege o Parola" required>
+            <input type="password" id="s_password" placeholder="Alege o parolă" required>
 
-            <button type="submit" class="submit-btn">Creează Cont</button>
+            <button type="submit" class="submit-btn">✨ Creează Cont</button>
         </form>
 
         <form id="loginForm" class="hidden" onsubmit="handleLogin(event)">
-            
             <div id="login-client-fields">
-                <input type="text" id="l_c_nume" placeholder="Numele de familie">
+                <input type="text" id="l_c_nume" placeholder="Nume de familie (User)">
             </div>
 
             <div id="login-prod-fields" class="hidden">
@@ -126,7 +194,7 @@
 
             <input type="password" id="l_password" placeholder="Parola ta">
 
-            <button type="submit" class="submit-btn" style="background-color: #007bff;">Intră în Cont</button>
+            <button type="submit" class="submit-btn">🚀 Intră în Cont</button>
         </form>
 
         <div class="footer-link" id="toggleText">
